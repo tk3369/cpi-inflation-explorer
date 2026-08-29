@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <link rel="icon" href="data:," />
+  <title>CPI Inflation Explorer — July 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #13202b;
+      --muted: #536575;
+      --paper: #f7f9fb;
+      --card: #ffffff;
+      --line: #d9e1e7;
+      --accent: #e4572e;
+      --accent-dark: #b83a18;
+      --accent-soft: #fff0e9;
+      --blue: #176b87;
+      --blue-soft: #e5f3f7;
+      --green: #14765a;
+      --shadow: 0 12px 32px rgba(24, 44, 60, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    button, a { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid rgba(23, 107, 135, .35); outline-offset: 2px; }
+    .page { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 56px; }
+    .lede {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 24px;
+      padding: 10px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow { margin: 0 0 8px; color: var(--accent-dark); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 8px; max-width: 760px; font-family: "Newsreader", serif; font-size: clamp(2.25rem, 5vw, 4.7rem); line-height: .98; letter-spacing: -.035em; }
+    .deck { max-width: 690px; margin-bottom: 0; color: var(--muted); font-size: 1.02rem; }
+    .download {
+      display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 9px 14px;
+      border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; white-space: nowrap;
+    }
+    .download:hover { border-color: #9aaab7; background: #fdfefe; }
+    .download svg { width: 17px; height: 17px; }
+    .source-strip { display: flex; flex-wrap: wrap; gap: 7px 16px; align-items: center; padding: 12px 0 20px; color: var(--muted); font-size: .82rem; }
+    .source-strip a { color: var(--blue); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .source-strip .dot::before { content: "•"; margin-right: 16px; color: #93a1ad; }
+
+    .month-panel { margin: 4px 0 26px; }
+    .section-label { margin: 0 0 9px; font-size: .82rem; font-weight: 700; color: #415462; }
+    .months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 7px; }
+    .month {
+      min-width: 0; padding: 9px 4px; border: 1px solid var(--line); border-radius: 7px; background: var(--card);
+      color: #435460; font-size: .78rem; font-weight: 600; cursor: pointer;
+    }
+    .month span { display: block; font-size: .67rem; color: #778691; font-weight: 500; }
+    .month[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+    .month[aria-pressed="true"] span { color: #c7d2da; }
+    .month:disabled { border-style: dashed; background: transparent; color: #a3aeb6; cursor: not-allowed; }
+    .month:disabled span { color: #a3aeb6; }
+    .missing-note { margin: 8px 0 0; color: #70808d; font-size: .76rem; }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr); gap: 20px; align-items: start; }
+    .stack { display: grid; gap: 20px; }
+    .panel { min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+    .summary { padding: 24px; }
+    .crumbs { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-bottom: 18px; }
+    .crumbs button { padding: 0; border: 0; background: none; color: var(--blue); font-size: .83rem; font-weight: 600; cursor: pointer; }
+    .crumbs button[aria-current="page"] { color: var(--muted); cursor: default; }
+    .crumb-sep { color: #9aa6af; }
+    .summary-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .summary h2 { margin-bottom: 2px; font-family: "Newsreader", serif; font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.06; }
+    .period { margin: 0; color: var(--muted); font-size: .9rem; }
+    .direction-badge { flex: 0 0 auto; padding: 6px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); font-size: .75rem; font-weight: 700; }
+    .direction-badge.down { background: #e8f4ef; color: var(--green); }
+    .direction-badge.flat { background: #eef2f5; color: #536575; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 22px 0 20px; }
+    .metric { padding: 17px; border-radius: 9px; background: #f4f7f9; }
+    .metric-label { display: block; margin-bottom: 3px; color: var(--muted); font-size: .76rem; font-weight: 600; }
+    .metric-value { display: flex; align-items: baseline; gap: 4px; font-family: "Newsreader", serif; font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1; font-weight: 700; }
+    .metric-value small { font-family: "IBM Plex Sans", sans-serif; font-size: .9rem; font-weight: 600; }
+    .metric-note { display: block; margin-top: 5px; color: #647480; font-size: .73rem; }
+    .interpretation { padding: 16px 18px; border-radius: 9px; background: var(--blue-soft); }
+    .interpretation strong { display: block; margin-bottom: 4px; color: #125970; font-size: .78rem; letter-spacing: .02em; }
+    .interpretation p { margin: 0; color: #294c5b; font-size: .93rem; }
+
+    .drill { padding: 22px; }
+    .drill-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+    .drill h3, .chart-panel h3 { margin: 0; font-size: 1rem; }
+    .drill-head span { color: var(--muted); font-size: .75rem; }
+    .node-list { display: grid; gap: 8px; }
+    .node {
+      width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto 24px; gap: 10px; align-items: center;
+      padding: 13px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; text-align: left; cursor: pointer;
+    }
+    .node:hover { border-color: #9fb0bc; background: #fbfcfd; }
+    .node-name { min-width: 0; font-weight: 600; }
+    .node-meta { text-align: right; }
+    .node-meta strong { display: block; font-size: .9rem; }
+    .node-meta span { color: var(--muted); font-size: .7rem; }
+    .node-arrow { color: var(--blue); font-size: 1.15rem; }
+    .leaf-note { margin: 0; color: var(--muted); font-size: .88rem; }
+
+    .chart-panel { padding: 20px; }
+    .chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 18px; margin-bottom: 10px; }
+    .chart-head p { margin: 2px 0 0; color: var(--muted); font-size: .76rem; }
+    .legend { display: flex; gap: 12px; color: var(--muted); font-size: .74rem; }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .legend i { width: 13px; height: 3px; background: var(--accent); border-radius: 2px; }
+    .chart-wrap { width: 100%; min-height: 250px; }
+    .chart-wrap.small { min-height: 190px; }
+    .chart-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .axis-text { fill: #6c7b86; font: 11px "IBM Plex Sans", sans-serif; }
+    .grid-line { stroke: #dce4e9; stroke-width: 1; }
+    .zero-line { stroke: #82929d; stroke-width: 1.2; }
+    .yoy-line { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .yoy-point { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
+    .yoy-point.active { fill: var(--accent); stroke-width: 3; }
+    .bar-pos { fill: var(--blue); }
+    .bar-neg { fill: var(--green); }
+    .bar-active { stroke: var(--ink); stroke-width: 2; }
+    .value-label { fill: var(--ink); font: 600 10px "IBM Plex Sans", sans-serif; }
+    .gap-label { fill: #8a98a3; font: 10px "IBM Plex Sans", sans-serif; }
+    .footnotes { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); color: #62727e; font-size: .76rem; }
+    .footnotes p { margin-bottom: 7px; }
+
+    @media (max-width: 840px) {
+      .page { width: min(100% - 24px, 700px); padding-top: 20px; }
+      .lede { grid-template-columns: 1fr; align-items: start; gap: 16px; }
+      .download { width: fit-content; }
+      .months { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .workspace { grid-template-columns: 1fr; }
+      .stack { display: contents; }
+      .summary { order: 1; }
+      .drill { order: 2; }
+      .chart-panel.yoy { order: 3; }
+      .chart-panel.mom { order: 4; }
+    }
+    @media (max-width: 520px) {
+      h1 { font-size: 2.7rem; }
+      .source-strip { gap: 4px 10px; }
+      .source-strip .dot::before { margin-right: 10px; }
+      .months { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .summary, .drill, .chart-panel { padding: 17px; }
+      .metrics { gap: 8px; }
+      .metric { padding: 14px 12px; }
+      .metric-value { font-size: 2.2rem; }
+      .summary-top { flex-direction: column; gap: 9px; }
+      .node { grid-template-columns: minmax(0, 1fr) auto 18px; padding: 11px 10px; }
+      .chart-wrap { min-height: 210px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="lede" aria-labelledby="headline">
+      <div>
+        <p class="eyebrow">U.S. consumer prices · July 2026 report</p>
+        <h1 id="headline">Prices rose 0.1% in July</h1>
+        <p class="deck">Explore the headline rate, then drill into food, energy, shelter and their component indexes. Choose a report month to compare the same category over time.</p>
+      </div>
+      <button class="download" id="downloadBtn" type="button" aria-label="Download this explorer as a single HTML file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+        Download HTML
+      </button>
+    </section>
+
+    <div class="source-strip">
+      <span>BLS CPI-U · U.S. city average</span>
+      <span class="dot">Data through July 2026</span>
+      <span class="dot">Snapshot extracted Aug 29, 2026</span>
+      <a class="dot" href="https://www.bls.gov/news.release/cpi.htm" target="_blank" rel="noopener noreferrer">View BLS release ↗</a>
+    </div>
+
+    <section class="month-panel" aria-labelledby="month-label">
+      <p class="section-label" id="month-label">REPORT MONTH</p>
+      <div class="months" id="months"></div>
+      <p class="missing-note">October and November 2025 headline reports were unavailable during the lapse in appropriations; gaps are preserved rather than estimated.</p>
+    </section>
+
+    <section class="workspace">
+      <div class="stack">
+        <article class="panel summary" id="summary"></article>
+        <article class="panel chart-panel yoy">
+          <div class="chart-head">
+            <div><h3>Year-over-year trend</h3><p>12-month percent change, not seasonally adjusted</p></div>
+            <div class="legend"><span><i></i>Selected category</span></div>
+          </div>
+          <div class="chart-wrap" id="yoyChart" role="img" aria-label="Year-over-year inflation trend"></div>
+        </article>
+        <article class="panel chart-panel mom">
+          <div class="chart-head">
+            <div><h3>Monthly movement</h3><p>Change from prior month; seasonally adjusted unless noted</p></div>
+            <div class="legend"><span><i style="background:var(--blue)"></i>Increase</span><span><i style="background:var(--green)"></i>Decrease</span></div>
+          </div>
+          <div class="chart-wrap small" id="momChart" role="img" aria-label="Month-over-month inflation bars"></div>
+        </article>
+      </div>
+
+      <aside class="panel drill" aria-labelledby="drill-title">
+        <div class="drill-head"><h3 id="drill-title">Explore the basket</h3><span>tap to drill down</span></div>
+        <div class="node-list" id="nodeList"></div>
+      </aside>
+    </section>
+
+    <footer class="footnotes">
+      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them; food away from home uses the not-seasonally-adjusted series. Annual changes are not seasonally adjusted.</p>
+      <p>Fixed snapshot · data through July 2026.</p>
+    </footer>
+  </main>
+
+  <script>
+    const periods = [
+      { key:'2025-08', short:'Aug', year:'2025', available:true },
+      { key:'2025-09', short:'Sep', year:'2025', available:true },
+      { key:'2025-10', short:'Oct', year:'2025', available:false },
+      { key:'2025-11', short:'Nov', year:'2025', available:false },
+      { key:'2025-12', short:'Dec', year:'2025', available:true },
+      { key:'2026-01', short:'Jan', year:'2026', available:true },
+      { key:'2026-02', short:'Feb', year:'2026', available:true },
+      { key:'2026-03', short:'Mar', year:'2026', available:true },
+      { key:'2026-04', short:'Apr', year:'2026', available:true },
+      { key:'2026-05', short:'May', year:'2026', available:true },
+      { key:'2026-06', short:'Jun', year:'2026', available:true },
+      { key:'2026-07', short:'Jul', year:'2026', available:true }
+    ];
+
+    const categories = {
+      all: { name:'All items', parent:null, children:['food','energy','shelter','core'], mom:[0.3,0.3,null,null,0.3,0.2,0.3,0.9,0.6,0.5,-0.4,0.1], yoy:[2.9,3.0,null,2.7,2.7,2.4,2.4,3.3,3.8,4.2,3.5,3.4] },
+      food: { name:'Food', parent:'all', children:['foodHome','foodAway'], mom:[0.4,0.2,null,null,0.7,0.2,0.4,0.0,0.5,0.2,0.2,0.1], yoy:[3.2,3.1,null,2.6,3.1,2.9,3.1,2.7,3.2,3.1,3.0,3.0] },
+      foodHome: { name:'Food at home', parent:'food', children:[], mom:[0.5,0.3,null,null,0.6,0.2,0.4,-0.2,0.7,0.1,0.2,-0.1], yoy:[2.7,2.7,null,1.9,2.4,2.1,2.4,1.9,2.9,2.7,2.7,2.7] },
+      foodAway: { name:'Food away from home', parent:'food', children:[], mom:[0.3,0.1,null,null,0.7,0.1,0.3,0.2,0.2,0.3,0.2,0.3], yoy:[3.9,3.7,null,3.7,4.1,4.0,3.9,3.8,3.6,3.5,3.4,3.4], nsaMom:true },
+      energy: { name:'Energy', parent:'all', children:['gasoline','electricity','naturalGas'], mom:[0.7,1.4,null,null,0.3,-1.5,0.6,10.9,3.8,3.9,-5.7,-1.5], yoy:[0.2,2.8,null,4.2,2.3,-0.1,0.5,12.5,17.9,23.5,15.7,14.7] },
+      gasoline: { name:'Gasoline', parent:'energy', children:[], mom:[1.6,3.6,-1.3,2.7,-0.3,-3.2,0.8,21.2,5.4,7.0,-9.7,-2.9], yoy:[-6.6,-0.5,-1.7,0.9,-3.4,-7.5,-5.6,18.9,28.4,40.5,26.7,24.6] },
+      electricity: { name:'Electricity', parent:'energy', children:[], mom:[0.2,-0.3,null,null,0.2,-0.1,-0.7,0.8,2.1,0.6,-1.0,0.1], yoy:[6.2,5.1,null,6.9,6.7,6.3,4.8,4.6,6.1,5.9,4.0,4.2] },
+      naturalGas: { name:'Natural gas service', parent:'energy', children:[], mom:[-1.2,-0.9,null,null,3.7,1.0,3.1,-0.9,-0.1,-0.5,0.5,0.7], yoy:[13.8,11.7,null,9.1,10.8,9.8,10.9,6.4,3.0,3.0,3.0,4.3] },
+      shelter: { name:'Shelter', parent:'all', children:['rent','oer'], mom:[0.4,0.2,null,null,0.4,0.2,0.2,0.3,0.6,0.3,0.1,0.1], yoy:[3.6,3.6,null,3.0,3.2,3.0,3.0,3.0,3.3,3.4,3.3,3.2] },
+      rent: { name:'Rent of primary residence', parent:'shelter', children:[], mom:[0.3,0.2,null,null,0.3,0.2,0.1,0.2,0.5,0.4,0.1,0.3], yoy:[3.5,3.4,null,3.0,2.9,2.8,2.7,2.6,2.8,2.9,2.8,2.9] },
+      oer: { name:"Owners’ equivalent rent", parent:'shelter', children:[], mom:[0.3,0.2,null,null,0.3,0.2,0.2,0.3,0.5,0.3,0.2,0.3], yoy:[4.0,3.8,null,3.4,3.4,3.3,3.2,3.1,3.3,3.3,3.3,3.2] },
+      core: { name:'All items less food & energy', parent:'all', children:[], mom:[0.3,0.2,null,null,0.2,0.3,0.2,0.2,0.4,0.2,0.0,0.2], yoy:[3.1,3.0,null,2.6,2.6,2.5,2.5,2.6,2.8,2.9,2.6,2.5] }
+    };
+
+    let selectedCategory = 'all';
+    let selectedPeriod = 11;
+
+    const fmt = value => value == null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+    const monthName = i => new Date(`${periods[i].key}-01T12:00:00`).toLocaleDateString('en-US', {month:'long', year:'numeric'});
+    const previousAvailable = (arr, i) => { for (let j=i-1; j>=0; j--) if (arr[j] != null) return arr[j]; return null; };
+
+    function pathTo(id) {
+      const path = [];
+      let current = id;
+      while (current) { path.unshift(current); current = categories[current].parent; }
+      return path;
+    }
+
+    function interpretation(cat, i) {
+      const mom = cat.mom[i], yoy = cat.yoy[i], prevMom = previousAvailable(cat.mom, i), prevYoy = previousAvailable(cat.yoy, i);
+      const month = periods[i].short;
+      let first;
+      if (mom < -1) first = `${cat.name} prices fell ${Math.abs(mom).toFixed(1)}% in ${month}, a notable monthly decline.`;
+      else if (mom < 0) first = `${cat.name} prices edged down ${Math.abs(mom).toFixed(1)}% in ${month}.`;
+      else if (mom === 0) first = `${cat.name} prices were unchanged in ${month}.`;
+      else if (mom >= 1) first = `${cat.name} prices jumped ${mom.toFixed(1)}% in ${month}, a sharp one-month move.`;
+      else if (mom >= .4) first = `${cat.name} prices rose ${mom.toFixed(1)}% in ${month}, a firm monthly increase.`;
+      else first = `${cat.name} prices edged up ${mom.toFixed(1)}% in ${month}.`;
+
+      let second = `They were ${Math.abs(yoy).toFixed(1)}% ${yoy >= 0 ? 'higher' : 'lower'} than a year earlier`;
+      if (prevYoy != null) {
+        if (yoy > prevYoy) second += `, with the annual pace up from ${prevYoy.toFixed(1)}% in the prior available report.`;
+        else if (yoy < prevYoy) second += `, with the annual pace easing from ${prevYoy.toFixed(1)}% in the prior available report.`;
+        else second += `, matching the prior available report.`;
+      } else second += '.';
+
+      if (cat.name === 'Energy' || cat.name === 'Gasoline' || cat.name === 'Natural gas service') second += ' Energy components tend to be more volatile than the broad index.';
+      if (cat.name === 'Shelter' || cat.parent === 'shelter') second += ' Shelter moves are usually persistent and carry substantial weight in the CPI basket.';
+      if (cat.nsaMom) second += ' The monthly figure for this series is not seasonally adjusted.';
+      return `${first} ${second}`;
+    }
+
+    function renderMonths() {
+      const root = document.getElementById('months');
+      root.innerHTML = periods.map((p, i) => `<button class="month" type="button" data-i="${i}" aria-pressed="${i === selectedPeriod}" ${!p.available ? 'disabled aria-label="'+p.short+' '+p.year+', report unavailable"' : ''}>${p.short}<span>${p.year}</span></button>`).join('');
+      root.querySelectorAll('button:not(:disabled)').forEach(btn => btn.addEventListener('click', () => { selectedPeriod = Number(btn.dataset.i); render(); }));
+    }
+
+    function renderSummary() {
+      const cat = categories[selectedCategory];
+      const mom = cat.mom[selectedPeriod], yoy = cat.yoy[selectedPeriod];
+      const trendClass = mom > 0 ? '' : mom < 0 ? 'down' : 'flat';
+      const trendWord = mom > 0 ? 'Prices rising' : mom < 0 ? 'Prices falling' : 'No monthly change';
+      const crumbs = pathTo(selectedCategory).map((id, idx, arr) => `<button type="button" data-category="${id}" ${idx === arr.length - 1 ? 'aria-current="page"' : ''}>${categories[id].name}</button>${idx < arr.length - 1 ? '<span class="crumb-sep">›</span>' : ''}`).join('');
+      document.getElementById('summary').innerHTML = `
+        <nav class="crumbs" aria-label="Category path">${crumbs}</nav>
+        <div class="summary-top">
+          <div><h2>${cat.name}</h2><p class="period">${monthName(selectedPeriod)}</p></div>
+          <span class="direction-badge ${trendClass}">${trendWord}</span>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span class="metric-label">FROM PRIOR MONTH</span><span class="metric-value">${fmt(mom)}<small>MoM</small></span><span class="metric-note">${cat.nsaMom ? 'Not seasonally adjusted' : 'Seasonally adjusted'}</span></div>
+          <div class="metric"><span class="metric-label">FROM A YEAR AGO</span><span class="metric-value">${fmt(yoy)}<small>YoY</small></span><span class="metric-note">Not seasonally adjusted</span></div>
+        </div>
+        <div class="interpretation"><strong>WHAT THIS SUGGESTS</strong><p>${interpretation(cat, selectedPeriod)}</p></div>`;
+      document.querySelectorAll('.crumbs button').forEach(btn => btn.addEventListener('click', () => { selectedCategory = btn.dataset.category; render(); }));
+    }
+
+    function renderNodes() {
+      const cat = categories[selectedCategory];
+      const list = document.getElementById('nodeList');
+      const ids = cat.children.length ? cat.children : (cat.parent ? categories[cat.parent].children.filter(id => id !== selectedCategory) : []);
+      document.querySelector('.drill-head span').textContent = cat.children.length ? 'tap to drill down' : 'related categories';
+      if (!ids.length) { list.innerHTML = '<p class="leaf-note">This is the deepest level included in this concise explorer.</p>'; return; }
+      list.innerHTML = ids.map(id => {
+        const child = categories[id], mom = child.mom[selectedPeriod], yoy = child.yoy[selectedPeriod];
+        return `<button class="node" type="button" data-category="${id}"><span class="node-name">${child.name}</span><span class="node-meta"><strong>${fmt(yoy)} YoY</strong><span>${fmt(mom)} MoM</span></span><span class="node-arrow" aria-hidden="true">›</span></button>`;
+      }).join('');
+      list.querySelectorAll('.node').forEach(btn => btn.addEventListener('click', () => { selectedCategory = btn.dataset.category; render(); document.getElementById('summary').scrollIntoView({behavior:'smooth', block:'start'}); }));
+    }
+
+    function niceDomain(values, includeZero=false) {
+      let min = Math.min(...values), max = Math.max(...values);
+      if (includeZero) { min = Math.min(0, min); max = Math.max(0, max); }
+      const span = Math.max(max - min, 0.5);
+      const pad = span * .15;
+      return [Math.floor((min-pad)*2)/2, Math.ceil((max+pad)*2)/2];
+    }
+
+    function renderYoy() {
+      const values = categories[selectedCategory].yoy;
+      const valid = values.filter(v => v != null);
+      const [min,max] = niceDomain(valid, false);
+      const W=680,H=250,L=48,R=18,T=20,B=42, pw=W-L-R, ph=H-T-B;
+      const x = i => L + i * pw/(values.length-1);
+      const y = v => T + (max-v)/(max-min)*ph;
+      const ticks = Array.from({length:5},(_,i)=>min+(max-min)*i/4);
+      let paths=[], current=[];
+      values.forEach((v,i)=>{ if(v==null){ if(current.length){paths.push(current);current=[];} } else current.push([x(i),y(v)]); });
+      if(current.length) paths.push(current);
+      const pathSvg = paths.map(seg => `<path class="yoy-line" d="${seg.map((p,j)=>`${j?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')}"/>`).join('');
+      const points = values.map((v,i)=>v==null?'':`<circle class="yoy-point ${i===selectedPeriod?'active':''}" cx="${x(i)}" cy="${y(v)}" r="${i===selectedPeriod?5:3.5}"/>`).join('');
+      const gaps = values.map((v,i)=>v==null?`<text class="gap-label" x="${x(i)}" y="${T+ph/2}" text-anchor="middle">no report</text>`:'').join('');
+      const yGrid = ticks.map(v=>`<line class="grid-line" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-text" x="${L-8}" y="${y(v)+4}" text-anchor="end">${v.toFixed(1)}%</text>`).join('');
+      const xLabels = periods.map((p,i)=>`<text class="axis-text" x="${x(i)}" y="${H-16}" text-anchor="middle">${p.short}</text>`).join('');
+      const active = values[selectedPeriod];
+      const activeLabel = active==null?'':`<text class="value-label" x="${x(selectedPeriod)}" y="${Math.max(12,y(active)-10)}" text-anchor="middle">${active.toFixed(1)}%</text>`;
+      document.getElementById('yoyChart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${yGrid}${pathSvg}${points}${gaps}${activeLabel}${xLabels}</svg>`;
+      document.getElementById('yoyChart').setAttribute('aria-label', `${categories[selectedCategory].name} year-over-year inflation from August 2025 through July 2026; selected ${monthName(selectedPeriod)} ${fmt(active)}`);
+    }
+
+    function renderMom() {
+      const values = categories[selectedCategory].mom;
+      const valid = values.filter(v => v != null);
+      const maxAbs = Math.max(...valid.map(Math.abs), .5);
+      const bound = Math.ceil(maxAbs*1.12*2)/2;
+      const min=-bound,max=bound;
+      const W=680,H=205,L=48,R=18,T=18,B=42,pw=W-L-R,ph=H-T-B;
+      const slot = pw/values.length;
+      const x = i => L + i*slot + slot*.18;
+      const bw = slot*.64;
+      const y = v => T+(max-v)/(max-min)*ph;
+      const y0 = y(0);
+      const ticks=[min, min/2, 0, max/2, max];
+      const yGrid=ticks.map(v=>`<line class="${v===0?'zero-line':'grid-line'}" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-text" x="${L-8}" y="${y(v)+4}" text-anchor="end">${v.toFixed(1)}%</text>`).join('');
+      const bars=values.map((v,i)=>{ if(v==null) return `<text class="gap-label" x="${x(i)+bw/2}" y="${T+ph/2}" text-anchor="middle">—</text>`; const top=Math.min(y(v),y0),height=Math.max(1,Math.abs(y(v)-y0)); return `<rect class="${v>=0?'bar-pos':'bar-neg'} ${i===selectedPeriod?'bar-active':''}" x="${x(i)}" y="${top}" width="${bw}" height="${height}" rx="2"/>`; }).join('');
+      const xLabels=periods.map((p,i)=>`<text class="axis-text" x="${x(i)+bw/2}" y="${H-16}" text-anchor="middle">${p.short}</text>`).join('');
+      document.getElementById('momChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${yGrid}${bars}${xLabels}</svg>`;
+      document.getElementById('momChart').setAttribute('aria-label', `${categories[selectedCategory].name} month-over-month change from August 2025 through July 2026; selected ${monthName(selectedPeriod)} ${fmt(values[selectedPeriod])}`);
+    }
+
+    function renderHeadline() {
+      const all=categories.all, mom=all.mom[selectedPeriod], period=periods[selectedPeriod];
+      const verb=mom>0?'rose':mom<0?'fell':'was unchanged';
+      document.getElementById('headline').textContent = mom===0 ? `Prices were unchanged in ${period.short}` : `Prices ${verb} ${Math.abs(mom).toFixed(1)}% in ${period.short}`;
+      document.querySelector('.eyebrow').textContent=`U.S. consumer prices · ${monthName(selectedPeriod)} report`;
+    }
+
+    function render() { renderMonths(); renderHeadline(); renderSummary(); renderNodes(); renderYoy(); renderMom(); }
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const html='<!doctype html>\n'+document.documentElement.outerHTML;
+      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(blob);
+      link.download='cpi-inflation-explorer.html';
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+    });
+
+    render();
+  </script>
+</body>
+</html>
