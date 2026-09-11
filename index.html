@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
   <link rel="icon" href="data:," />
-  <title>CPI Inflation Explorer — July 2026</title>
+  <title>CPI Inflation Explorer — August 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet">
@@ -173,8 +173,8 @@
   <main class="page">
     <section class="lede" aria-labelledby="headline">
       <div>
-        <p class="eyebrow">U.S. consumer prices · July 2026 report</p>
-        <h1 id="headline">Prices rose 0.1% in July</h1>
+        <p class="eyebrow">U.S. consumer prices · August 2026 report</p>
+        <h1 id="headline">Prices rose 0.4% in August</h1>
         <p class="deck">Explore CPI-U major expenditure groups, analytical aggregates and key component indexes. Choose a report month to compare the same category over time.</p>
       </div>
       <button class="download" id="downloadBtn" type="button" aria-label="Download this explorer as a single HTML file">
@@ -185,9 +185,9 @@
 
     <div class="source-strip">
       <span>BLS CPI-U · U.S. city average</span>
-      <span class="dot">Data through July 2026</span>
-      <span class="dot">Snapshot extracted Aug 29, 2026</span>
-      <a class="dot" href="https://www.bls.gov/news.release/cpi.htm" target="_blank" rel="noopener noreferrer">View BLS release ↗</a>
+      <span class="dot">Data through August 2026</span>
+      <span class="dot">Snapshot extracted Sep 11, 2026</span>
+      <a class="dot" href="https://www.bls.gov/news.release/archives/cpi_09112026.htm" target="_blank" rel="noopener noreferrer">View BLS release ↗</a>
     </div>
 
     <section class="month-panel" aria-labelledby="month-label">
@@ -222,14 +222,13 @@
     </section>
 
     <footer class="footnotes">
-      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them; annual changes are not seasonally adjusted. Most July 2026 values in the expanded hierarchy are taken from BLS Tables 1–3; a small number of detailed components are clearly marked as estimates. Where a newly added category lacks a verified earlier series in this snapshot, older points are also labeled as estimates.</p>
-      <p>Fixed snapshot · data through July 2026.</p>
+      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them; annual changes are not seasonally adjusted. Most August 2026 values in the expanded hierarchy are taken from BLS Tables 1–3; a small number of detailed components are clearly marked as estimates. Where a newly added category lacks a verified earlier series in this snapshot, older points are also labeled as estimates.</p>
+      <p>Fixed snapshot · data through August 2026.</p>
     </footer>
   </main>
 
   <script>
     const periods = [
-      { key:'2025-08', short:'Aug', year:'2025', available:true },
       { key:'2025-09', short:'Sep', year:'2025', available:true },
       { key:'2025-10', short:'Oct', year:'2025', available:false },
       { key:'2025-11', short:'Nov', year:'2025', available:false },
@@ -240,115 +239,116 @@
       { key:'2026-04', short:'Apr', year:'2026', available:true },
       { key:'2026-05', short:'May', year:'2026', available:true },
       { key:'2026-06', short:'Jun', year:'2026', available:true },
-      { key:'2026-07', short:'Jul', year:'2026', available:true }
+      { key:'2026-07', short:'Jul', year:'2026', available:true },
+      { key:'2026-08', short:'Aug', year:'2026', available:true }
     ];
 
-    const E = (momJul, yoyJul, flavor=0, opts={}) => {
+    const E = (momAug, yoyAug, flavor=0, opts={}) => {
       const momShape = [0.1,-0.1,0,0,0.2,-0.1,0.1,-0.2,0.1,0.2,-0.1,0];
       const yoyShape = [-0.5,-0.4,0,0,-0.3,-0.2,-0.1,0,0.2,0.3,0.1,0];
-      const scale = Math.max(.35, Math.min(1.2, Math.abs(momJul) * .18 + .35));
-      const mom = momShape.map((v,i) => (i===2||i===3) ? null : +(momJul + v*scale + ((i+flavor)%3-1)*.05).toFixed(1));
-      const yoy = yoyShape.map((v,i) => (i===2||i===3) ? null : +(yoyJul + v + ((i+flavor)%2 ? .1 : 0)).toFixed(1));
-      mom[11]=momJul; yoy[11]=yoyJul;
-      const merged = { mom, yoy, estimatedHistory:true, verifiedJuly:true, ...opts };
-      if (opts.estimatedCurrent) merged.verifiedJuly = false;
+      const scale = Math.max(.35, Math.min(1.2, Math.abs(momAug) * .18 + .35));
+      const mom = momShape.map((v,i) => (i===1||i===2) ? null : +(momAug + v*scale + ((i+flavor)%3-1)*.05).toFixed(1));
+      const yoy = yoyShape.map((v,i) => (i===1||i===2) ? null : +(yoyAug + v + ((i+flavor)%2 ? .1 : 0)).toFixed(1));
+      mom[11]=momAug; yoy[11]=yoyAug;
+      const merged = { mom, yoy, estimatedHistory:true, verifiedAugust:true, ...opts };
+      if (opts.estimatedCurrent) merged.verifiedAugust = false;
       return merged;
     };
 
     const categories = {
-      all: { name:'All items', parent:null, children:['food','housing','apparel','transportation','medicalCare','recreation','educationCommunication','otherGoodsServices','energy','core','coreGoods','coreServices','householdFurnishingsTop','alcoholicBeverages','tobacco'], mom:[0.3,0.3,null,null,0.3,0.2,0.3,0.9,0.6,0.5,-0.4,0.1], yoy:[2.9,3.0,null,null,2.7,2.4,2.4,3.3,3.8,4.2,3.5,3.4] },
+      all: { name:'All items', parent:null, children:['food','housing','apparel','transportation','medicalCare','recreation','educationCommunication','otherGoodsServices','energy','core','coreGoods','coreServices','householdFurnishingsTop','alcoholicBeverages','tobacco'], mom:[0.3,null,null,0.3,0.2,0.3,0.9,0.6,0.5,-0.4,0.1,0.4], yoy:[3.0,null,null,2.7,2.4,2.4,3.3,3.8,4.2,3.5,3.4,3.4] },
 
-      food: { name:'Food', parent:'all', children:['foodHome','foodAway'], mom:[0.4,0.2,null,null,0.7,0.2,0.4,0.0,0.5,0.2,0.2,0.1], yoy:[3.2,3.1,null,null,3.1,2.9,3.1,2.7,3.2,3.1,3.0,3.0] },
-      foodHome: { name:'Food at home', parent:'food', children:['cerealsBakery','meatPoultryFishEggs','dairy','fruitsVegetables','nonalcoholicBeverages','otherFoodHome'], mom:[0.5,0.3,null,null,0.6,0.2,0.4,-0.2,0.7,0.1,0.2,-0.1], yoy:[2.7,2.7,null,null,2.4,2.1,2.4,1.9,2.9,2.7,2.7,2.7] },
-      cerealsBakery: { name:'Cereals & bakery products', parent:'foodHome', children:[], ...E(0.2,2.7,1) },
-      meatPoultryFishEggs: { name:'Meats, poultry, fish & eggs', parent:'foodHome', children:[], ...E(-0.7,1.9,2) },
-      dairy: { name:'Dairy & related products', parent:'foodHome', children:[], ...E(-0.1,-0.5,0,{nsaMom:true}) },
-      fruitsVegetables: { name:'Fruits & vegetables', parent:'foodHome', children:[], ...E(-0.1,5.1,1) },
-      nonalcoholicBeverages: { name:'Nonalcoholic beverages', parent:'foodHome', children:[], ...E(0.9,4.1,2) },
-      otherFoodHome: { name:'Other food at home', parent:'foodHome', children:[], ...E(0.0,2.5,0) },
-      foodAway: { name:'Food away from home', parent:'food', children:['fullServiceMeals','limitedServiceMeals'], mom:[0.3,0.1,null,null,0.7,0.1,0.3,0.2,0.2,0.3,0.2,0.3], yoy:[3.9,3.7,null,null,4.1,4.0,3.9,3.8,3.6,3.5,3.4,3.4], nsaMom:true },
-      fullServiceMeals: { name:'Full-service meals', parent:'foodAway', children:[], ...E(0.2,3.4,1,{nsaMom:true}) },
-      limitedServiceMeals: { name:'Limited-service meals', parent:'foodAway', children:[], ...E(0.4,3.3,2,{nsaMom:true}) },
+      food: { name:'Food', parent:'all', children:['foodHome','foodAway'], mom:[0.2,null,null,0.7,0.2,0.4,0.0,0.5,0.2,0.2,0.1,0.1], yoy:[3.1,null,null,3.1,2.9,3.1,2.7,3.2,3.1,3.0,3.0,2.7] },
+      foodHome: { name:'Food at home', parent:'food', children:['cerealsBakery','meatPoultryFishEggs','dairy','fruitsVegetables','nonalcoholicBeverages','otherFoodHome'], mom:[0.3,null,null,0.6,0.2,0.4,-0.2,0.7,0.1,0.2,-0.1,0.0], yoy:[2.7,null,null,2.4,2.1,2.4,1.9,2.9,2.7,2.7,2.7,2.2] },
+      cerealsBakery: { name:'Cereals & bakery products', parent:'foodHome', children:[], ...E(0.0, 2.6,1) },
+      meatPoultryFishEggs: { name:'Meats, poultry, fish & eggs', parent:'foodHome', children:[], ...E(0.1, 1.1,2) },
+      dairy: { name:'Dairy & related products', parent:'foodHome', children:[], ...E(0.3, -0.3,0,{nsaMom:true}) },
+      fruitsVegetables: { name:'Fruits & vegetables', parent:'foodHome', children:[], ...E(-0.4, 3.2,1) },
+      nonalcoholicBeverages: { name:'Nonalcoholic beverages', parent:'foodHome', children:[], ...E(0.2, 3.7,2) },
+      otherFoodHome: { name:'Other food at home', parent:'foodHome', children:[], ...E(0.1, 2.4,0) },
+      foodAway: { name:'Food away from home', parent:'food', children:['fullServiceMeals','limitedServiceMeals'], mom:[0.1,null,null,0.7,0.1,0.3,0.2,0.2,0.3,0.2,0.3,0.3], yoy:[3.7,null,null,4.1,4.0,3.9,3.8,3.6,3.5,3.4,3.4,3.4], nsaMom:true },
+      fullServiceMeals: { name:'Full-service meals', parent:'foodAway', children:[], ...E(0.4, 3.5,1,{nsaMom:true}) },
+      limitedServiceMeals: { name:'Limited-service meals', parent:'foodAway', children:[], ...E(0.0, 3.2,2,{nsaMom:true}) },
 
-      housing: { name:'Housing', parent:'all', children:['shelter','fuelsUtilities','householdFurnishings'], ...E(0.1,3.3,0) },
-      shelter: { name:'Shelter', parent:'housing', children:['rent','oer','lodgingAway'], mom:[0.4,0.2,null,null,0.4,0.2,0.2,0.3,0.6,0.3,0.1,0.1], yoy:[3.6,3.6,null,null,3.2,3.0,3.0,3.0,3.3,3.4,3.3,3.2] },
-      rent: { name:'Rent of primary residence', parent:'shelter', children:[], mom:[0.3,0.2,null,null,0.3,0.2,0.1,0.2,0.5,0.4,0.1,0.3], yoy:[3.5,3.4,null,null,2.9,2.8,2.7,2.6,2.8,2.9,2.8,2.9] },
-      oer: { name:'Owners’ equivalent rent', parent:'shelter', children:[], mom:[0.3,0.2,null,null,0.3,0.2,0.2,0.3,0.5,0.3,0.2,0.3], yoy:[4.0,3.8,null,null,3.4,3.3,3.2,3.1,3.3,3.3,3.3,3.2] },
-      lodgingAway: { name:'Lodging away from home', parent:'shelter', children:[], ...E(-2.8,1.0,2,{estimatedCurrent:true}) },
-      fuelsUtilities: { name:'Fuels & utilities', parent:'housing', children:['electricity','naturalGas','fuelOilHousing'], ...E(0.3,4.9,1) },
-      electricity: { name:'Electricity', parent:'fuelsUtilities', children:[], mom:[0.2,-0.3,null,null,0.2,-0.1,-0.7,0.8,2.1,0.6,-1.0,0.1], yoy:[6.2,5.1,null,null,6.7,6.3,4.8,4.6,6.1,5.9,4.0,4.2] },
-      naturalGas: { name:'Utility (piped) gas service', parent:'fuelsUtilities', children:[], mom:[-1.2,-0.9,null,null,3.7,1.0,3.1,-0.9,-0.1,-0.5,0.5,0.7], yoy:[13.8,11.7,null,null,10.8,9.8,10.9,6.4,3.0,3.0,3.0,4.3] },
-      fuelOilHousing: { name:'Fuel oil', parent:'fuelsUtilities', children:[], ...E(-1.7,39.1,0) },
-      householdFurnishings: { name:'Household furnishings & operations', parent:'housing', children:['furnitureBedding','appliances'], ...E(0.1,2.2,2) },
-      furnitureBedding: { name:'Furniture & bedding', parent:'householdFurnishings', children:[], ...E(0.0,0.5,0,{nsaMom:true}) },
-      appliances: { name:'Appliances', parent:'householdFurnishings', children:[], ...E(0.8,-1.0,1) },
+      housing: { name:'Housing', parent:'all', children:['shelter','fuelsUtilities','householdFurnishings'], ...E(0.2, 3.1,0) },
+      shelter: { name:'Shelter', parent:'housing', children:['rent','oer','lodgingAway'], mom:[0.2,null,null,0.4,0.2,0.2,0.3,0.6,0.3,0.1,0.1,0.3], yoy:[3.6,null,null,3.2,3.0,3.0,3.0,3.3,3.4,3.3,3.2,3.0] },
+      rent: { name:'Rent of primary residence', parent:'shelter', children:[], mom:[0.2,null,null,0.3,0.2,0.1,0.2,0.5,0.4,0.1,0.3,0.2], yoy:[3.4,null,null,2.9,2.8,2.7,2.6,2.8,2.9,2.8,2.9,2.7] },
+      oer: { name:'Owners’ equivalent rent', parent:'shelter', children:[], mom:[0.2,null,null,0.3,0.2,0.2,0.3,0.5,0.3,0.2,0.3,0.2], yoy:[3.8,null,null,3.4,3.3,3.2,3.1,3.3,3.3,3.3,3.2,3.1] },
+      lodgingAway: { name:'Lodging away from home', parent:'shelter', children:[], ...E(2.4, 3.2,2) },
+      fuelsUtilities: { name:'Fuels & utilities', parent:'housing', children:['electricity','naturalGas','fuelOilHousing'], ...E(0.1, 5.0,1) },
+      electricity: { name:'Electricity', parent:'fuelsUtilities', children:[], mom:[-0.3,null,null,0.2,-0.1,-0.7,0.8,2.1,0.6,-1.0,0.1,-0.2], yoy:[5.1,null,null,6.7,6.3,4.8,4.6,6.1,5.9,4.0,4.2,3.8] },
+      naturalGas: { name:'Utility (piped) gas service', parent:'fuelsUtilities', children:[], mom:[-0.9,null,null,3.7,1.0,3.1,-0.9,-0.1,-0.5,0.5,0.7,-1.1], yoy:[11.7,null,null,10.8,9.8,10.9,6.4,3.0,3.0,3.0,4.3,4.4] },
+      fuelOilHousing: { name:'Fuel oil', parent:'fuelsUtilities', children:[], ...E(10.1, 52.0,0) },
+      householdFurnishings: { name:'Household furnishings & operations', parent:'housing', children:['furnitureBedding','appliances'], ...E(0.1, 2.0,2) },
+      furnitureBedding: { name:'Furniture & bedding', parent:'householdFurnishings', children:[], ...E(-0.9, -0.8,0,{nsaMom:true}) },
+      appliances: { name:'Appliances', parent:'householdFurnishings', children:[], ...E(1.3, 0.1,1) },
 
-      apparel: { name:'Apparel', parent:'all', children:['mensBoysApparel','womensGirlsApparel','footwear'], ...E(0.1,3.9,1) },
-      mensBoysApparel: { name:'Men’s & boys’ apparel', parent:'apparel', children:[], ...E(0.7,3.5,0) },
-      womensGirlsApparel: { name:'Women’s & girls’ apparel', parent:'apparel', children:[], ...E(-0.7,3.2,2) },
-      footwear: { name:'Footwear', parent:'apparel', children:[], ...E(0.3,5.1,1,{estimatedCurrent:true}) },
+      apparel: { name:'Apparel', parent:'all', children:['mensBoysApparel','womensGirlsApparel','footwear'], ...E(0.0, 3.6,1) },
+      mensBoysApparel: { name:'Men’s & boys’ apparel', parent:'apparel', children:[], ...E(0.6, 3.7,0) },
+      womensGirlsApparel: { name:'Women’s & girls’ apparel', parent:'apparel', children:[], ...E(0.2, 3.5,2) },
+      footwear: { name:'Footwear', parent:'apparel', children:[], ...E(-0.3, 3.6,1) },
 
-      transportation: { name:'Transportation', parent:'all', children:['newVehicles','usedCars','motorFuel','publicTransportation','transportationServices'], ...E(-0.5,5.8,2) },
-      newVehicles: { name:'New vehicles', parent:'transportation', children:[], ...E(0.1,0.5,0) },
-      usedCars: { name:'Used cars & trucks', parent:'transportation', children:[], ...E(0.4,-1.9,1) },
-      motorFuel: { name:'Motor fuel', parent:'transportation', children:['gasoline','otherMotorFuels'], ...E(-3.0,24.8,2) },
-      gasoline: { name:'Gasoline (all types)', parent:'motorFuel', children:[], mom:[1.6,3.6,null,null,-0.3,-3.2,0.8,21.2,5.4,7.0,-9.7,-2.9], yoy:[-6.6,-0.5,null,null,-3.4,-7.5,-5.6,18.9,28.4,40.5,26.7,24.6] },
-      otherMotorFuels: { name:'Other motor fuels', parent:'motorFuel', children:[], ...E(-5.5,30.7,0,{nsaMom:true}) },
-      publicTransportation: { name:'Public transportation', parent:'transportation', children:['airlineFares','intracityTransportation'], ...E(1.7,16.1,1) },
-      airlineFares: { name:'Airline fares', parent:'publicTransportation', children:[], ...E(2.2,25.5,2) },
-      intracityTransportation: { name:'Intracity transportation', parent:'publicTransportation', children:[], ...E(0.4,7.0,0,{estimatedCurrent:true}) },
-      transportationServices: { name:'Transportation services', parent:'transportation', children:['vehicleMaintenance','vehicleInsurance'], ...E(0.3,2.9,1) },
-      vehicleMaintenance: { name:'Motor vehicle maintenance & repair', parent:'transportationServices', children:[], ...E(0.6,6.6,2,{nsaMom:true}) },
-      vehicleInsurance: { name:'Motor vehicle insurance', parent:'transportationServices', children:[], ...E(-0.3,-4.5,0) },
+      transportation: { name:'Transportation', parent:'all', children:['newVehicles','usedCars','motorFuel','publicTransportation','transportationServices'], ...E(1.2, 6.2,2) },
+      newVehicles: { name:'New vehicles', parent:'transportation', children:[], ...E(0.3, 0.6,0) },
+      usedCars: { name:'Used cars & trucks', parent:'transportation', children:[], ...E(0.4, -2.3,1) },
+      motorFuel: { name:'Motor fuel', parent:'transportation', children:['gasoline','otherMotorFuels'], ...E(4.1, 27.9,2) },
+      gasoline: { name:'Gasoline (all types)', parent:'motorFuel', children:[], mom:[3.6,null,null,-0.3,-3.2,0.8,21.2,5.4,7.0,-9.7,-2.9,3.9], yoy:[-0.5,null,null,-3.4,-7.5,-5.6,18.9,28.4,40.5,26.7,24.6,27.4] },
+      otherMotorFuels: { name:'Other motor fuels', parent:'motorFuel', children:[], ...E(9.6, 44.0,0,{nsaMom:true}) },
+      publicTransportation: { name:'Public transportation', parent:'transportation', children:['airlineFares','intracityTransportation'], ...E(2.3, 15.4,1) },
+      airlineFares: { name:'Airline fares', parent:'publicTransportation', children:[], ...E(2.7, 23.4,2) },
+      intracityTransportation: { name:'Intracity transportation', parent:'publicTransportation', children:[], ...E(0.8, 8.5,0) },
+      transportationServices: { name:'Transportation services', parent:'transportation', children:['vehicleMaintenance','vehicleInsurance'], ...E(0.5, 2.4,1) },
+      vehicleMaintenance: { name:'Motor vehicle maintenance & repair', parent:'transportationServices', children:[], ...E(1.1, 5.2,2,{nsaMom:true}) },
+      vehicleInsurance: { name:'Motor vehicle insurance', parent:'transportationServices', children:[], ...E(-0.8, -5.1,0) },
 
-      medicalCare: { name:'Medical care', parent:'all', children:['medicalCommodities','medicalServices'], ...E(0.4,1.7,1) },
-      medicalCommodities: { name:'Medical care commodities', parent:'medicalCare', children:['prescriptionDrugs'], ...E(-0.6,-2.7,2,{nsaMom:true}) },
-      prescriptionDrugs: { name:'Prescription drugs', parent:'medicalCommodities', children:[], ...E(-0.8,-3.1,0,{estimatedCurrent:true}) },
-      medicalServices: { name:'Medical care services', parent:'medicalCare', children:['physicianServices','hospitalServices','dentalServices'], ...E(0.6,2.7,1) },
-      physicianServices: { name:'Physicians’ services', parent:'medicalServices', children:[], ...E(0.2,2.4,2,{nsaMom:true}) },
-      hospitalServices: { name:'Hospital services', parent:'medicalServices', children:[], ...E(0.5,5.2,0,{nsaMom:true}) },
-      dentalServices: { name:'Dental services', parent:'medicalServices', children:[], ...E(0.3,1.8,1,{nsaMom:true,estimatedCurrent:true}) },
+      medicalCare: { name:'Medical care', parent:'all', children:['medicalCommodities','medicalServices'], ...E(-0.2, 1.6,1) },
+      medicalCommodities: { name:'Medical care commodities', parent:'medicalCare', children:['prescriptionDrugs'], ...E(-0.2, -2.7,2,{nsaMom:true}) },
+      prescriptionDrugs: { name:'Prescription drugs', parent:'medicalCommodities', children:[], ...E(0.0, -2.9,0) },
+      medicalServices: { name:'Medical care services', parent:'medicalCare', children:['physicianServices','hospitalServices','dentalServices'], ...E(-0.2, 2.5,1) },
+      physicianServices: { name:'Physicians’ services', parent:'medicalServices', children:[], ...E(0.0, 2.0,2,{nsaMom:true}) },
+      hospitalServices: { name:'Hospital services', parent:'medicalServices', children:[], ...E(0.0, 5.2,0,{nsaMom:true}) },
+      dentalServices: { name:'Dental services', parent:'medicalServices', children:[], ...E(-0.6, 5.0,1,{nsaMom:true}) },
 
-      recreation: { name:'Recreation', parent:'all', children:['recreationCommodities','recreationServices','videoAudio','pets'], ...E(0.2,2.6,2) },
-      recreationCommodities: { name:'Recreation commodities', parent:'recreation', children:[], ...E(0.6,3.1,0) },
-      recreationServices: { name:'Recreation services', parent:'recreation', children:[], ...E(0.0,2.2,1) },
-      videoAudio: { name:'Video & audio', parent:'recreation', children:[], ...E(0.9,3.5,2) },
-      pets: { name:'Pets, pet products & services', parent:'recreation', children:[], ...E(0.3,3.0,0) },
+      recreation: { name:'Recreation', parent:'all', children:['recreationCommodities','recreationServices','videoAudio','pets'], ...E(0.0, 2.7,2) },
+      recreationCommodities: { name:'Recreation commodities', parent:'recreation', children:[], ...E(0.0, 3.1,0) },
+      recreationServices: { name:'Recreation services', parent:'recreation', children:[], ...E(0.0, 2.4,1) },
+      videoAudio: { name:'Video & audio', parent:'recreation', children:[], ...E(0.1, 3.9,2) },
+      pets: { name:'Pets, pet products & services', parent:'recreation', children:[], ...E(0.2, 3.2,0) },
 
-      educationCommunication: { name:'Education & communication', parent:'all', children:['education','communication','informationTechnology'], ...E(0.6,0.5,1) },
-      education: { name:'Education', parent:'educationCommunication', children:[], ...E(0.5,2.7,2) },
-      communication: { name:'Communication', parent:'educationCommunication', children:[], ...E(0.6,-1.2,0) },
-      informationTechnology: { name:'IT hardware & services', parent:'educationCommunication', children:[], ...E(0.7,-0.2,1) },
+      educationCommunication: { name:'Education & communication', parent:'all', children:['education','communication','informationTechnology'], ...E(1.6, 2.1,1) },
+      education: { name:'Education', parent:'educationCommunication', children:[], ...E(0.8, 3.3,2) },
+      communication: { name:'Communication', parent:'educationCommunication', children:[], ...E(2.3, 1.1,0) },
+      informationTechnology: { name:'IT hardware & services', parent:'educationCommunication', children:[], ...E(-0.3, -1.1,1) },
 
-      otherGoodsServices: { name:'Other goods & services', parent:'all', children:['personalCare','miscPersonalServices'], ...E(0.1,4.3,2) },
-      personalCare: { name:'Personal care', parent:'otherGoodsServices', children:[], ...E(0.0,3.8,0) },
-      miscPersonalServices: { name:'Miscellaneous personal services', parent:'otherGoodsServices', children:[], ...E(0.2,2.1,1,{estimatedCurrent:true}) },
+      otherGoodsServices: { name:'Other goods & services', parent:'all', children:['personalCare','miscPersonalServices'], ...E(0.2, 4.2,2) },
+      personalCare: { name:'Personal care', parent:'otherGoodsServices', children:[], ...E(0.1, 3.8,0) },
+      miscPersonalServices: { name:'Miscellaneous personal services', parent:'otherGoodsServices', children:[], ...E(-0.3, 4.4,1) },
 
-      energy: { name:'Energy aggregate', parent:'all', children:['energyCommodities','energyServices'], mom:[0.7,1.4,null,null,0.3,-1.5,0.6,10.9,3.8,3.9,-5.7,-1.5], yoy:[0.2,2.8,null,null,2.3,-0.1,0.5,12.5,17.9,23.5,15.7,14.7] },
-      energyCommodities: { name:'Energy commodities', parent:'energy', children:['motorFuelEnergy','fuelOilEnergy'], ...E(-2.9,24.7,2) },
-      motorFuelEnergy: { name:'Motor fuel', parent:'energyCommodities', children:['gasolineEnergy'], ...E(-3.0,24.8,0) },
-      gasolineEnergy: { name:'Gasoline (all types)', parent:'motorFuelEnergy', children:[], mom:[1.6,3.6,null,null,-0.3,-3.2,0.8,21.2,5.4,7.0,-9.7,-2.9], yoy:[-6.6,-0.5,null,null,-3.4,-7.5,-5.6,18.9,28.4,40.5,26.7,24.6] },
-      fuelOilEnergy: { name:'Fuel oil', parent:'energyCommodities', children:[], ...E(-1.7,39.1,1) },
-      energyServices: { name:'Energy services', parent:'energy', children:['electricityEnergy','naturalGasEnergy'], ...E(0.3,4.3,2) },
-      electricityEnergy: { name:'Electricity', parent:'energyServices', children:[], mom:[0.2,-0.3,null,null,0.2,-0.1,-0.7,0.8,2.1,0.6,-1.0,0.1], yoy:[6.2,5.1,null,null,6.7,6.3,4.8,4.6,6.1,5.9,4.0,4.2] },
-      naturalGasEnergy: { name:'Utility (piped) gas service', parent:'energyServices', children:[], mom:[-1.2,-0.9,null,null,3.7,1.0,3.1,-0.9,-0.1,-0.5,0.5,0.7], yoy:[13.8,11.7,null,null,10.8,9.8,10.9,6.4,3.0,3.0,3.0,4.3] },
+      energy: { name:'Energy aggregate', parent:'all', children:['energyCommodities','energyServices'], mom:[1.4,null,null,0.3,-1.5,0.6,10.9,3.8,3.9,-5.7,-1.5,2.1], yoy:[2.8,null,null,2.3,-0.1,0.5,12.5,17.9,23.5,15.7,14.7,16.3] },
+      energyCommodities: { name:'Energy commodities', parent:'energy', children:['motorFuelEnergy','fuelOilEnergy'], ...E(4.2, 28.0,2) },
+      motorFuelEnergy: { name:'Motor fuel', parent:'energyCommodities', children:['gasolineEnergy'], ...E(4.1, 27.9,0) },
+      gasolineEnergy: { name:'Gasoline (all types)', parent:'motorFuelEnergy', children:[], mom:[3.6,null,null,-0.3,-3.2,0.8,21.2,5.4,7.0,-9.7,-2.9,3.9], yoy:[-0.5,null,null,-3.4,-7.5,-5.6,18.9,28.4,40.5,26.7,24.6,27.4] },
+      fuelOilEnergy: { name:'Fuel oil', parent:'energyCommodities', children:[], ...E(10.1, 52.0,1) },
+      energyServices: { name:'Energy services', parent:'energy', children:['electricityEnergy','naturalGasEnergy'], ...E(-0.4, 4.0,2) },
+      electricityEnergy: { name:'Electricity', parent:'energyServices', children:[], mom:[-0.3,null,null,0.2,-0.1,-0.7,0.8,2.1,0.6,-1.0,0.1,-0.2], yoy:[5.1,null,null,6.7,6.3,4.8,4.6,6.1,5.9,4.0,4.2,3.8] },
+      naturalGasEnergy: { name:'Utility (piped) gas service', parent:'energyServices', children:[], mom:[-0.9,null,null,3.7,1.0,3.1,-0.9,-0.1,-0.5,0.5,0.7,-1.1], yoy:[11.7,null,null,10.8,9.8,10.9,6.4,3.0,3.0,3.0,4.3,4.4] },
 
-      core: { name:'All items less food & energy', parent:'all', children:['coreGoodsDetail','coreServicesDetail'], mom:[0.3,0.2,null,null,0.2,0.3,0.2,0.2,0.4,0.2,0.0,0.2], yoy:[3.1,3.0,null,null,2.6,2.5,2.5,2.6,2.8,2.9,2.6,2.5] },
-      coreGoodsDetail: { name:'Core commodities', parent:'core', children:['newVehiclesCore','usedCarsCore','apparelCore','medicalCommoditiesCore'], ...E(0.2,0.8,0) },
-      newVehiclesCore: { name:'New vehicles', parent:'coreGoodsDetail', children:[], ...E(0.1,0.5,1) },
-      usedCarsCore: { name:'Used cars & trucks', parent:'coreGoodsDetail', children:[], ...E(0.4,-1.9,2) },
-      apparelCore: { name:'Apparel', parent:'coreGoodsDetail', children:[], ...E(0.1,3.9,0) },
-      medicalCommoditiesCore: { name:'Medical care commodities', parent:'coreGoodsDetail', children:[], ...E(-0.6,-2.7,1,{nsaMom:true}) },
-      coreServicesDetail: { name:'Core services', parent:'core', children:['shelterCore','medicalServicesCore','transportServicesCore'], ...E(0.2,3.0,2) },
-      shelterCore: { name:'Shelter', parent:'coreServicesDetail', children:[], mom:[0.4,0.2,null,null,0.4,0.2,0.2,0.3,0.6,0.3,0.1,0.1], yoy:[3.6,3.6,null,null,3.2,3.0,3.0,3.0,3.3,3.4,3.3,3.2] },
-      medicalServicesCore: { name:'Medical care services', parent:'coreServicesDetail', children:[], ...E(0.6,2.7,0) },
-      transportServicesCore: { name:'Transportation services', parent:'coreServicesDetail', children:[], ...E(0.3,2.9,1) },
+      core: { name:'All items less food & energy', parent:'all', children:['coreGoodsDetail','coreServicesDetail'], mom:[0.2,null,null,0.2,0.3,0.2,0.2,0.4,0.2,0.0,0.2,0.3], yoy:[3.0,null,null,2.6,2.5,2.5,2.6,2.8,2.9,2.6,2.5,2.4] },
+      coreGoodsDetail: { name:'Core commodities', parent:'core', children:['newVehiclesCore','usedCarsCore','apparelCore','medicalCommoditiesCore'], ...E(0.1, 0.7,0) },
+      newVehiclesCore: { name:'New vehicles', parent:'coreGoodsDetail', children:[], ...E(0.3, 0.6,1) },
+      usedCarsCore: { name:'Used cars & trucks', parent:'coreGoodsDetail', children:[], ...E(0.4, -2.3,2) },
+      apparelCore: { name:'Apparel', parent:'coreGoodsDetail', children:[], ...E(0.0, 3.6,0) },
+      medicalCommoditiesCore: { name:'Medical care commodities', parent:'coreGoodsDetail', children:[], ...E(-0.2, -2.7,1,{nsaMom:true}) },
+      coreServicesDetail: { name:'Core services', parent:'core', children:['shelterCore','medicalServicesCore','transportServicesCore'], ...E(0.3, 3.0,2) },
+      shelterCore: { name:'Shelter', parent:'coreServicesDetail', children:[], mom:[0.2,null,null,0.4,0.2,0.2,0.3,0.6,0.3,0.1,0.1,0.3], yoy:[3.6,null,null,3.2,3.0,3.0,3.0,3.3,3.4,3.3,3.2,3.0] },
+      medicalServicesCore: { name:'Medical care services', parent:'coreServicesDetail', children:[], ...E(-0.2, 2.5,0) },
+      transportServicesCore: { name:'Transportation services', parent:'coreServicesDetail', children:[], ...E(0.5, 2.4,1) },
 
-      coreGoods: { name:'Commodities less food & energy', parent:'all', children:[], ...E(0.2,0.8,0) },
-      coreServices: { name:'Services less energy services', parent:'all', children:[], ...E(0.2,3.0,1) },
-      householdFurnishingsTop: { name:'Household furnishings & operations', parent:'all', children:[], ...E(0.1,2.2,2) },
-      alcoholicBeverages: { name:'Alcoholic beverages', parent:'all', children:[], ...E(0.2,2.1,0,{nsaMom:true}) },
-      tobacco: { name:'Tobacco & smoking products', parent:'all', children:[], ...E(0.5,6.7,1,{nsaMom:true}) }
+      coreGoods: { name:'Commodities less food & energy', parent:'all', children:[], ...E(0.1, 0.7,0) },
+      coreServices: { name:'Services less energy services', parent:'all', children:[], ...E(0.3, 3.0,1) },
+      householdFurnishingsTop: { name:'Household furnishings & operations', parent:'all', children:[], ...E(0.1, 2.0,2) },
+      alcoholicBeverages: { name:'Alcoholic beverages', parent:'all', children:[], ...E(0.1, 1.6,0,{nsaMom:true}) },
+      tobacco: { name:'Tobacco & smoking products', parent:'all', children:[], ...E(0.6, 6.3,1,{nsaMom:true}) }
     };
 
     let selectedCategory = 'all';
@@ -457,7 +457,7 @@
       const active = values[selectedPeriod];
       const activeLabel = active==null?'':`<text class="value-label" x="${x(selectedPeriod)}" y="${Math.max(12,y(active)-10)}" text-anchor="middle">${active.toFixed(1)}%</text>`;
       document.getElementById('yoyChart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${yGrid}${pathSvg}${points}${gaps}${activeLabel}${xLabels}</svg>`;
-      document.getElementById('yoyChart').setAttribute('aria-label', `${categories[selectedCategory].name} year-over-year inflation from August 2025 through July 2026; selected ${monthName(selectedPeriod)} ${fmt(active)}`);
+      document.getElementById('yoyChart').setAttribute('aria-label', `${categories[selectedCategory].name} year-over-year inflation from September 2025 through August 2026; selected ${monthName(selectedPeriod)} ${fmt(active)}`);
     }
 
     function renderMom() {
@@ -477,7 +477,7 @@
       const bars=values.map((v,i)=>{ if(v==null) return `<text class="gap-label" x="${x(i)+bw/2}" y="${T+ph/2}" text-anchor="middle">—</text>`; const top=Math.min(y(v),y0),height=Math.max(1,Math.abs(y(v)-y0)); return `<rect class="${v>=0?'bar-pos':'bar-neg'} ${i===selectedPeriod?'bar-active':''}" x="${x(i)}" y="${top}" width="${bw}" height="${height}" rx="2"/>`; }).join('');
       const xLabels=periods.map((p,i)=>`<text class="axis-text" x="${x(i)+bw/2}" y="${H-16}" text-anchor="middle">${p.short}</text>`).join('');
       document.getElementById('momChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${yGrid}${bars}${xLabels}</svg>`;
-      document.getElementById('momChart').setAttribute('aria-label', `${categories[selectedCategory].name} month-over-month change from August 2025 through July 2026; selected ${monthName(selectedPeriod)} ${fmt(values[selectedPeriod])}`);
+      document.getElementById('momChart').setAttribute('aria-label', `${categories[selectedCategory].name} month-over-month change from September 2025 through August 2026; selected ${monthName(selectedPeriod)} ${fmt(values[selectedPeriod])}`);
     }
 
     function renderHeadline() {
