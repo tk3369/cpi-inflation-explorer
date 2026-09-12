@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
-  <link rel="icon" href="data:," />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e4572e'/%3E%3Cg stroke='white' stroke-linecap='round'%3E%3Cpath d='M14 48v-10' stroke-width='7'/%3E%3Cpath d='M28 48V30' stroke-width='7'/%3E%3Cpath d='M42 48V20' stroke-width='7'/%3E%3C/g%3E%3Cpath d='M12 32l12-8 8 5 16-13' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M40 16h8v8' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
   <title>CPI Inflation Explorer — August 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,12 +51,6 @@
     h1, h2, h3, p { margin-top: 0; }
     h1 { margin-bottom: 8px; max-width: 760px; font-family: "Newsreader", serif; font-size: clamp(2.25rem, 5vw, 4.7rem); line-height: .98; letter-spacing: -.035em; }
     .deck { max-width: 690px; margin-bottom: 0; color: var(--muted); font-size: 1.02rem; }
-    .download {
-      display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 9px 14px;
-      border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; white-space: nowrap;
-    }
-    .download:hover { border-color: #9aaab7; background: #fdfefe; }
-    .download svg { width: 17px; height: 17px; }
     .source-strip { display: flex; flex-wrap: wrap; gap: 7px 16px; align-items: center; padding: 12px 0 20px; color: var(--muted); font-size: .82rem; }
     .source-strip a { color: var(--blue); font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; }
     .source-strip .dot::before { content: "•"; margin-right: 16px; color: #93a1ad; }
@@ -74,6 +68,11 @@
     .month:disabled { border-style: dashed; background: transparent; color: #a3aeb6; cursor: not-allowed; }
     .month:disabled span { color: #a3aeb6; }
     .missing-note { margin: 8px 0 0; color: #70808d; font-size: .76rem; }
+    .view-switch { display: inline-flex; margin: 2px 0 6px; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    .view-tab { padding: 8px 14px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font-size: .82rem; font-weight: 600; cursor: pointer; }
+    .view-tab:hover { color: var(--ink); }
+    .view-tab.is-active { background: var(--ink); color: #fff; }
+    .view-caption { margin: 0 0 18px; color: var(--muted); font-size: .78rem; }
 
     .workspace { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr); gap: 20px; align-items: start; }
     .stack { display: grid; gap: 20px; }
@@ -144,7 +143,6 @@
     @media (max-width: 840px) {
       .page { width: min(100% - 24px, 700px); padding-top: 20px; }
       .lede { grid-template-columns: 1fr; align-items: start; gap: 16px; }
-      .download { width: fit-content; }
       .months { grid-template-columns: repeat(6, minmax(0, 1fr)); }
       .workspace { grid-template-columns: 1fr; }
       .stack { display: contents; }
@@ -177,10 +175,6 @@
         <h1 id="headline">Prices rose 0.4% in August</h1>
         <p class="deck">Explore CPI-U major expenditure groups, analytical aggregates and key component indexes. Choose a report month to compare the same category over time.</p>
       </div>
-      <button class="download" id="downloadBtn" type="button" aria-label="Download this explorer as a single HTML file">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
-        Download HTML
-      </button>
     </section>
 
     <div class="source-strip">
@@ -189,6 +183,12 @@
       <span class="dot">Rebuilt from BLS data Sep 12, 2026</span>
       <a class="dot" href="https://www.bls.gov/news.release/archives/cpi_09112026.htm" target="_blank" rel="noopener noreferrer">View BLS release ↗</a>
     </div>
+
+    <div class="view-switch" role="group" aria-label="Explorer view">
+      <button class="view-tab is-active" type="button" id="viewTaxonomy" aria-pressed="true">By expenditure group</button>
+      <button class="view-tab" type="button" id="viewNarrative" aria-pressed="false">By BLS release narrative</button>
+    </div>
+    <p class="view-caption" id="viewCaption">BLS item structure: 8 major expenditure groups plus analytical aggregates.</p>
 
     <section class="month-panel" aria-labelledby="month-label">
       <p class="section-label" id="month-label">REPORT MONTH</p>
@@ -224,6 +224,7 @@
 
     <footer class="footnotes">
       <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them (series BLS does not seasonally adjust are marked); annual changes are not seasonally adjusted. Every value in this snapshot comes from BLS — a BLS-published percent change or computed directly from BLS-published index levels. Nothing is modeled or estimated. October 2025 was not published by BLS (lapse in appropriations); for November 2025 BLS published annual changes but no 1-month changes for most series, so those cells are shown as unavailable. Relative-importance weights are not shown in this snapshot.</p>
+      <p><strong>Two views, one dataset:</strong> “By expenditure group” follows the BLS item taxonomy; “By BLS release narrative” follows the news-release layout (Food → Energy → All items less food &amp; energy). Both views draw on the same BLS-published series — switching views never changes a number.</p>
       <p>Fixed snapshot · data through August 2026.</p>
     </footer>
   </main>
@@ -344,6 +345,73 @@
       tobacco: { name:'Tobacco & smoking products', parent:'all', children:[], mom:[0.6,null,null,-0.2,2.1,0.1,0.1,0.5,1.0,-0.7,0.5,0.6], yoy:[6.9,null,6.9,6.8,8.5,8.0,7.4,7.6,7.8,6.5,6.7,6.3], nsaMom:true }
     };
 
+    // BLS release-narrative tree: the same BLS series as above, arranged the way
+    // the CPI news release tells the story (Food → Energy → All items less food
+    // & energy). Every node references a taxonomy node — no new data, nothing
+    // estimated.
+    const narrative = {
+      nAll: { name:'All items', parent:null, children:['nFood','nEnergy','nCore'], ref:'all' },
+
+      nFood: { name:'Food', parent:'nAll', children:['nFoodHome','nFoodAway'], ref:'food' },
+      nFoodHome: { name:'Food at home', parent:'nFood', children:['nCereals','nMeats','nDairy','nFruitsVeg','nNonalcoholic','nOtherFoodHome'], ref:'foodHome' },
+      nCereals: { name:'Cereals & bakery products', parent:'nFoodHome', children:[], ref:'cerealsBakery' },
+      nMeats: { name:'Meats, poultry, fish & eggs', parent:'nFoodHome', children:[], ref:'meatPoultryFishEggs' },
+      nDairy: { name:'Dairy & related products', parent:'nFoodHome', children:[], ref:'dairy' },
+      nFruitsVeg: { name:'Fruits & vegetables', parent:'nFoodHome', children:[], ref:'fruitsVegetables' },
+      nNonalcoholic: { name:'Nonalcoholic beverages', parent:'nFoodHome', children:[], ref:'nonalcoholicBeverages' },
+      nOtherFoodHome: { name:'Other food at home', parent:'nFoodHome', children:[], ref:'otherFoodHome' },
+      nFoodAway: { name:'Food away from home', parent:'nFood', children:['nFullService','nLimitedService'], ref:'foodAway' },
+      nFullService: { name:'Full-service meals', parent:'nFoodAway', children:[], ref:'fullServiceMeals' },
+      nLimitedService: { name:'Limited-service meals', parent:'nFoodAway', children:[], ref:'limitedServiceMeals' },
+
+      nEnergy: { name:'Energy', parent:'nAll', children:['nEnergyCommodities','nEnergyServices'], ref:'energy' },
+      nEnergyCommodities: { name:'Energy commodities', parent:'nEnergy', children:['nFuelOilN','nMotorFuelN'], ref:'energyCommodities' },
+      nFuelOilN: { name:'Fuel oil', parent:'nEnergyCommodities', children:[], ref:'fuelOilHousing' },
+      nMotorFuelN: { name:'Motor fuel', parent:'nEnergyCommodities', children:['nGasolineN'], ref:'motorFuel' },
+      nGasolineN: { name:'Gasoline (all types)', parent:'nMotorFuelN', children:[], ref:'gasoline' },
+      nEnergyServices: { name:'Energy services', parent:'nEnergy', children:['nElectricityN','nPipedGasN'], ref:'energyServices' },
+      nElectricityN: { name:'Electricity', parent:'nEnergyServices', children:[], ref:'electricity' },
+      nPipedGasN: { name:'Utility (piped) gas service', parent:'nEnergyServices', children:[], ref:'naturalGas' },
+
+      nCore: { name:'All items less food & energy', parent:'nAll', children:['nCoreCommodities','nCoreServices'], ref:'core' },
+      nCoreCommodities: { name:'Commodities less food & energy commodities', parent:'nCore', children:['nApparelN','nNewVehN','nUsedCarsN','nMedCommN','nAlcoholN','nTobaccoN','nHHFurnN'], ref:'coreGoods' },
+      nApparelN: { name:'Apparel', parent:'nCoreCommodities', children:['nMensN','nWomensN','nFootwearN'], ref:'apparel' },
+      nMensN: { name:'Men’s & boys’ apparel', parent:'nApparelN', children:[], ref:'mensBoysApparel' },
+      nWomensN: { name:'Women’s & girls’ apparel', parent:'nApparelN', children:[], ref:'womensGirlsApparel' },
+      nFootwearN: { name:'Footwear', parent:'nApparelN', children:[], ref:'footwear' },
+      nNewVehN: { name:'New vehicles', parent:'nCoreCommodities', children:[], ref:'newVehicles' },
+      nUsedCarsN: { name:'Used cars & trucks', parent:'nCoreCommodities', children:[], ref:'usedCars' },
+      nMedCommN: { name:'Medical care commodities', parent:'nCoreCommodities', children:[], ref:'medicalCommodities' },
+      nAlcoholN: { name:'Alcoholic beverages', parent:'nCoreCommodities', children:[], ref:'alcoholicBeverages' },
+      nTobaccoN: { name:'Tobacco & smoking products', parent:'nCoreCommodities', children:[], ref:'tobacco' },
+      nHHFurnN: { name:'Household furnishings & operations', parent:'nCoreCommodities', children:['nFurnitureN','nAppliancesN'], ref:'householdFurnishings' },
+      nFurnitureN: { name:'Furniture & bedding', parent:'nHHFurnN', children:[], ref:'furnitureBedding' },
+      nAppliancesN: { name:'Appliances', parent:'nHHFurnN', children:[], ref:'appliances' },
+      nCoreServices: { name:'Services less energy services', parent:'nCore', children:['nShelterN','nMedServN','nTransServN','nRecreationN','nEduCommN','nOtherGSN'], ref:'coreServices' },
+      nShelterN: { name:'Shelter', parent:'nCoreServices', children:['nRentN','nOerN','nLodgingN'], ref:'shelter' },
+      nRentN: { name:'Rent of primary residence', parent:'nShelterN', children:[], ref:'rent' },
+      nOerN: { name:'Owners’ equivalent rent', parent:'nShelterN', children:[], ref:'oer' },
+      nLodgingN: { name:'Lodging away from home', parent:'nShelterN', children:[], ref:'lodgingAway' },
+      nMedServN: { name:'Medical care services', parent:'nCoreServices', children:['nPhysicianN','nHospitalN','nDentalN'], ref:'medicalServices' },
+      nPhysicianN: { name:'Physicians’ services', parent:'nMedServN', children:[], ref:'physicianServices' },
+      nHospitalN: { name:'Hospital services', parent:'nMedServN', children:[], ref:'hospitalServices' },
+      nDentalN: { name:'Dental services', parent:'nMedServN', children:[], ref:'dentalServices' },
+      nTransServN: { name:'Transportation services', parent:'nCoreServices', children:['nVehMaintN','nVehInsN','nAirlineN'], ref:'transportationServices' },
+      nVehMaintN: { name:'Motor vehicle maintenance & repair', parent:'nTransServN', children:[], ref:'vehicleMaintenance' },
+      nVehInsN: { name:'Motor vehicle insurance', parent:'nTransServN', children:[], ref:'vehicleInsurance' },
+      nAirlineN: { name:'Airline fares', parent:'nTransServN', children:[], ref:'airlineFares' },
+      nRecreationN: { name:'Recreation', parent:'nCoreServices', children:[], ref:'recreation' },
+      nEduCommN: { name:'Education & communication', parent:'nCoreServices', children:[], ref:'educationCommunication' },
+      nOtherGSN: { name:'Other goods & services', parent:'nCoreServices', children:['nPersonalCareN'], ref:'otherGoodsServices' },
+      nPersonalCareN: { name:'Personal care', parent:'nOtherGSN', children:[], ref:'personalCare' },
+    };
+
+    let view = 'taxonomy';
+    const rootId = () => view === 'narrative' ? 'nAll' : 'all';
+    const tree = () => view === 'narrative' ? narrative : categories;
+    const dispOf = id => tree()[id];
+    const dataOf = id => { const n = dispOf(id); return n.ref ? categories[n.ref] : n; };
+
     let selectedCategory = 'all';
     let selectedPeriod = LATEST;
 
@@ -354,26 +422,27 @@
     function pathTo(id) {
       const path = [];
       let current = id;
-      while (current) { path.unshift(current); current = categories[current].parent; }
+      while (current) { path.unshift(current); current = tree()[current].parent; }
       return path;
     }
 
     // Category ids whose monthly moves are typically volatile (matched by id, not display name).
     const ENERGY_IDS = new Set(['energy','energyCommodities','energyServices','motorFuel','motorFuelEnergy','gasoline','gasolineEnergy','otherMotorFuels','fuelOilHousing','fuelOilEnergy','electricity','electricityEnergy','naturalGas','naturalGasEnergy']);
 
-    function interpretation(id, cat, i) {
-      const mom = cat.mom[i], yoy = cat.yoy[i], prevMom = previousAvailable(cat.mom, i), prevYoy = previousAvailable(cat.yoy, i);
+    function interpretation(id, i) {
+      const disp = dispOf(id), dat = dataOf(id), rid = disp.ref || id;
+      const mom = dat.mom[i], yoy = dat.yoy[i], prevMom = previousAvailable(dat.mom, i), prevYoy = previousAvailable(dat.yoy, i);
       const month = periods[i].short;
       const myear = periods[i].year;
       if (mom == null && yoy == null) return `No report was published for ${month} ${myear} (lapse in appropriations).`;
       let first;
       if (mom == null) first = `BLS published no 1-month change for ${month} ${myear} — it was omitted because the October 2025 report was canceled during the lapse in appropriations.`;
-      else if (mom < -1) first = `${cat.name} prices fell ${Math.abs(mom).toFixed(1)}% in ${month}, a notable monthly decline.`;
-      else if (mom < 0) first = `${cat.name} prices edged down ${Math.abs(mom).toFixed(1)}% in ${month}.`;
-      else if (mom === 0) first = `${cat.name} prices were unchanged in ${month}.`;
-      else if (mom >= 1) first = `${cat.name} prices jumped ${mom.toFixed(1)}% in ${month}, a sharp one-month move.`;
-      else if (mom >= .4) first = `${cat.name} prices rose ${mom.toFixed(1)}% in ${month}, a firm monthly increase.`;
-      else first = `${cat.name} prices edged up ${mom.toFixed(1)}% in ${month}.`;
+      else if (mom < -1) first = `${disp.name} prices fell ${Math.abs(mom).toFixed(1)}% in ${month}, a notable monthly decline.`;
+      else if (mom < 0) first = `${disp.name} prices edged down ${Math.abs(mom).toFixed(1)}% in ${month}.`;
+      else if (mom === 0) first = `${disp.name} prices were unchanged in ${month}.`;
+      else if (mom >= 1) first = `${disp.name} prices jumped ${mom.toFixed(1)}% in ${month}, a sharp one-month move.`;
+      else if (mom >= .4) first = `${disp.name} prices rose ${mom.toFixed(1)}% in ${month}, a firm monthly increase.`;
+      else first = `${disp.name} prices edged up ${mom.toFixed(1)}% in ${month}.`;
 
       let second = `They were ${Math.abs(yoy).toFixed(1)}% ${yoy >= 0 ? 'higher' : 'lower'} than a year earlier`;
       if (prevYoy != null) {
@@ -382,25 +451,30 @@
         else second += `, matching the prior available report.`;
       } else second += '.';
 
-      if (ENERGY_IDS.has(id)) second += ' Energy components tend to be more volatile than the broad index.';
-      if (id === 'shelter' || cat.parent === 'shelter') second += ' Shelter moves are usually persistent and carry substantial weight in the CPI basket.';
-      if (cat.nsaMom) second += ' The monthly figure for this series is not seasonally adjusted.';
+      if (ENERGY_IDS.has(rid)) second += ' Energy components tend to be more volatile than the broad index.';
+      let p = rid, shelterish = false;
+      while (p) { if (p === 'shelter') { shelterish = true; break; } p = categories[p].parent; }
+      if (shelterish) second += ' Shelter moves are usually persistent and carry substantial weight in the CPI basket.';
+      if (dat.nsaMom) second += ' The monthly figure for this series is not seasonally adjusted.';
       return `${first} ${second}`;
     }
 
     function renderMonths() {
       const root = document.getElementById('months');
-      root.innerHTML = periods.map((p, i) => `<button class="month" type="button" data-i="${i}" aria-pressed="${i === selectedPeriod}" ${!p.available ? 'disabled aria-label="'+p.short+' '+p.year+', report unavailable"' : ''}>${p.short}<span>${p.year}</span></button>`).join('');
+      // Newest month first: the picker displays reverse-chronological while
+      // data-i keeps indexing `periods` (charts keep the usual time order).
+      const order = periods.map((_, i) => i).reverse();
+      root.innerHTML = order.map(i => { const p = periods[i]; return `<button class="month" type="button" data-i="${i}" aria-pressed="${i === selectedPeriod}" ${!p.available ? 'disabled aria-label="'+p.short+' '+p.year+', report unavailable"' : ''}>${p.short}<span>${p.year}</span></button>`; }).join('');
       root.querySelectorAll('button:not(:disabled)').forEach(btn => btn.addEventListener('click', () => { selectedPeriod = Number(btn.dataset.i); render(); const nb = root.querySelector(`button[data-i="${selectedPeriod}"]`); if (nb) nb.focus({preventScroll:true}); }));
     }
 
     function renderSummary() {
-      const cat = categories[selectedCategory];
-      const mom = cat.mom[selectedPeriod], yoy = cat.yoy[selectedPeriod];
+      const disp = dispOf(selectedCategory), dat = dataOf(selectedCategory);
+      const mom = dat.mom[selectedPeriod], yoy = dat.yoy[selectedPeriod];
       const trendClass = mom == null ? 'flat' : mom > 0 ? '' : mom < 0 ? 'down' : 'flat';
       const trendWord = mom == null ? 'No 1-month report' : mom > 0 ? 'Prices rising' : mom < 0 ? 'Prices falling' : 'No monthly change';
       const crumbs = pathTo(selectedCategory).map((id, idx, arr) => {
-        const label = categories[id].name;
+        const label = dispOf(id).name;
         const sep = idx < arr.length - 1 ? '<span class="crumb-sep">›</span>' : '';
         return idx === arr.length - 1
           ? `<span class="crumb-current" aria-current="page">${label}</span>${sep}`
@@ -409,26 +483,26 @@
       document.getElementById('summary').innerHTML = `
         <nav class="crumbs" aria-label="Category path">${crumbs}</nav>
         <div class="summary-top">
-          <div><h2 id="summaryTitle" tabindex="-1">${cat.name}</h2><p class="period">${monthName(selectedPeriod)}</p></div>
+          <div><h2 id="summaryTitle" tabindex="-1">${disp.name}</h2><p class="period">${monthName(selectedPeriod)}</p></div>
           <span class="direction-badge ${trendClass}">${trendWord}</span>
         </div>
         <div class="metrics">
-          <div class="metric"><span class="metric-label">FROM PRIOR MONTH</span><span class="metric-value">${fmt(mom)}<small>MoM</small></span><span class="metric-note">${cat.nsaMom ? 'Not seasonally adjusted' : 'Seasonally adjusted'}</span></div>
+          <div class="metric"><span class="metric-label">FROM PRIOR MONTH</span><span class="metric-value">${fmt(mom)}<small>MoM</small></span><span class="metric-note">${dat.nsaMom ? 'Not seasonally adjusted' : 'Seasonally adjusted'}</span></div>
           <div class="metric"><span class="metric-label">FROM A YEAR AGO</span><span class="metric-value">${fmt(yoy)}<small>YoY</small></span><span class="metric-note">Not seasonally adjusted</span></div>
         </div>
-        <div class="interpretation"><strong>WHAT THIS SUGGESTS</strong><p>${interpretation(selectedCategory, cat, selectedPeriod)}</p></div>`;
+        <div class="interpretation"><strong>WHAT THIS SUGGESTS</strong><p>${interpretation(selectedCategory, selectedPeriod)}</p></div>`;
       document.querySelectorAll('.crumbs button').forEach(btn => btn.addEventListener('click', () => { selectedCategory = btn.dataset.category; render(); document.getElementById('summaryTitle').focus({preventScroll:true}); }));
-      document.getElementById('liveStatus').textContent = `${cat.name}, ${monthName(selectedPeriod)}`;
+      document.getElementById('liveStatus').textContent = `${disp.name}, ${monthName(selectedPeriod)}`;
     }
 
     function renderNodes() {
-      const cat = categories[selectedCategory];
+      const disp = dispOf(selectedCategory);
       const list = document.getElementById('nodeList');
-      const ids = cat.children.length ? cat.children : (cat.parent ? categories[cat.parent].children.filter(id => id !== selectedCategory) : []);
-      document.querySelector('.drill .drill-head span').textContent = cat.children.length ? `${cat.children.length} ${selectedCategory === 'all' ? 'groups & aggregates' : 'categories'} · tap to drill down` : 'related categories';
+      const ids = disp.children.length ? disp.children : (disp.parent ? tree()[disp.parent].children.filter(id => id !== selectedCategory) : []);
+      document.querySelector('.drill .drill-head span').textContent = disp.children.length ? `${disp.children.length} ${selectedCategory === rootId() ? 'groups & aggregates' : 'categories'} · tap to drill down` : 'related categories';
       if (!ids.length) { list.innerHTML = '<p class="leaf-note">This is the deepest level included in this concise explorer.</p>'; return; }
       list.innerHTML = ids.map(id => {
-        const child = categories[id], mom = child.mom[selectedPeriod], yoy = child.yoy[selectedPeriod];
+        const child = dispOf(id), cdat = dataOf(id), mom = cdat.mom[selectedPeriod], yoy = cdat.yoy[selectedPeriod];
         return `<button class="node" type="button" data-category="${id}"><span class="node-name">${child.name}</span><span class="node-meta"><strong>${fmt(yoy)} YoY</strong><span>${fmt(mom)} MoM</span></span><span class="node-arrow" aria-hidden="true">›</span></button>`;
       }).join('');
       list.querySelectorAll('.node').forEach(btn => btn.addEventListener('click', () => { selectedCategory = btn.dataset.category; render(); const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; document.getElementById('summary').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block:'start'}); document.getElementById('summaryTitle').focus({preventScroll:true}); }));
@@ -443,8 +517,8 @@
     }
 
     function renderYoy() {
-      const cat = categories[selectedCategory];
-      const values = cat.yoy;
+      const dat = dataOf(selectedCategory);
+      const values = dat.yoy;
       const valid = values.filter(v => v != null);
       const [min,max] = niceDomain(valid, true);
       const W=680,H=250,L=48,R=18,T=20,B=42, pw=W-L-R, ph=H-T-B;
@@ -467,11 +541,11 @@
       const active = values[selectedPeriod];
       const activeLabel = active==null?'':`<text class="value-label" x="${x(selectedPeriod)}" y="${Math.max(12,y(active)-10)}" text-anchor="middle">${active.toFixed(1)}%</text>`;
       document.getElementById('yoyChart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${yGrid}${pathSvg}${points}${gaps}${activeLabel}${xLabels}</svg>`;
-      document.getElementById('yoyChart').setAttribute('aria-label', `${cat.name} year-over-year inflation from ${periods[0].short} ${periods[0].year} through ${monthName(LATEST)}; selected ${monthName(selectedPeriod)} ${fmt(active)}`);
+      document.getElementById('yoyChart').setAttribute('aria-label', `${dispOf(selectedCategory).name} year-over-year inflation from ${periods[0].short} ${periods[0].year} through ${monthName(LATEST)}; selected ${monthName(selectedPeriod)} ${fmt(active)}`);
     }
 
     function renderMom() {
-      const values = categories[selectedCategory].mom;
+      const values = dataOf(selectedCategory).mom;
       const valid = values.filter(v => v != null);
       const maxAbs = Math.max(...valid.map(Math.abs), .5);
       const bound = Math.ceil(maxAbs*1.12*2)/2;
@@ -487,11 +561,11 @@
       const bars=values.map((v,i)=>{ if(v==null) return `<text class="gap-label" x="${x(i)+bw/2}" y="${T+ph/2}" text-anchor="middle">—</text>`; const top=Math.min(y(v),y0),height=Math.max(1,Math.abs(y(v)-y0)); const rect=`<rect class="${v>=0?'bar-pos':'bar-neg'} ${i===selectedPeriod?'bar-active':''}" x="${x(i)}" y="${top}" width="${bw}" height="${height}" rx="2"/>`; const outlier=Math.abs(v)>=bound*0.5?`<text class="value-label" x="${x(i)+bw/2}" y="${v>=0?top-7:top+height+13}" text-anchor="middle">${v.toFixed(1)}%</text>`:''; return rect+outlier; }).join('');
       const xLabels=periods.map((p,i)=>`<text class="axis-text" x="${x(i)+bw/2}" y="${H-16}" text-anchor="middle">${p.short}</text>`).join('');
       document.getElementById('momChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${yGrid}${bars}${xLabels}</svg>`;
-      document.getElementById('momChart').setAttribute('aria-label', `${categories[selectedCategory].name} month-over-month change from ${periods[0].short} ${periods[0].year} through ${monthName(LATEST)}; selected ${monthName(selectedPeriod)} ${fmt(values[selectedPeriod])}`);
+      document.getElementById('momChart').setAttribute('aria-label', `${dispOf(selectedCategory).name} month-over-month change from ${periods[0].short} ${periods[0].year} through ${monthName(LATEST)}; selected ${monthName(selectedPeriod)} ${fmt(values[selectedPeriod])}`);
     }
 
     function renderHeadline() {
-      const all=categories.all, mom=all.mom[selectedPeriod], period=periods[selectedPeriod];
+      const mom=dataOf(rootId()).mom[selectedPeriod], period=periods[selectedPeriod];
       const verb=mom>0?'rose':mom<0?'fell':'was unchanged';
       document.getElementById('headline').textContent = mom==null ? `No 1-month change published for ${period.short} ${period.year}` : mom===0 ? `Prices were unchanged in ${period.short}` : `Prices ${verb} ${Math.abs(mom).toFixed(1)}% in ${period.short}`;
       document.querySelector('.eyebrow').textContent=`U.S. consumer prices · ${monthName(selectedPeriod)} report`;
@@ -500,15 +574,25 @@
 
     function render() { renderMonths(); renderHeadline(); renderSummary(); renderNodes(); renderYoy(); renderMom(); }
 
-    document.getElementById('downloadBtn').addEventListener('click', () => {
-      const html='<!doctype html>\n'+document.documentElement.outerHTML;
-      const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-      const link=document.createElement('a');
-      link.href=URL.createObjectURL(blob);
-      link.download='cpi-inflation-explorer.html';
-      document.body.appendChild(link); link.click(); link.remove();
-      setTimeout(()=>URL.revokeObjectURL(link.href),1000);
-    });
+    const VIEW_CAPTIONS = {
+      taxonomy: 'BLS item structure: 8 major expenditure groups plus analytical aggregates.',
+      narrative: 'Mirrors the BLS news release — Food, then Energy, then All items less food & energy. Same BLS series, release order.'
+    };
+    function setView(v) {
+      if (view === v) return;
+      view = v;
+      selectedCategory = rootId();
+      const tax = v === 'taxonomy';
+      document.getElementById('viewTaxonomy').classList.toggle('is-active', tax);
+      document.getElementById('viewTaxonomy').setAttribute('aria-pressed', String(tax));
+      document.getElementById('viewNarrative').classList.toggle('is-active', !tax);
+      document.getElementById('viewNarrative').setAttribute('aria-pressed', String(!tax));
+      document.getElementById('viewCaption').textContent = VIEW_CAPTIONS[v];
+      render();
+      document.getElementById('liveStatus').textContent = `Switched to ${tax ? 'expenditure group' : 'BLS release narrative'} view. Showing ${dispOf(selectedCategory).name}.`;
+    }
+    document.getElementById('viewTaxonomy').addEventListener('click', () => setView('taxonomy'));
+    document.getElementById('viewNarrative').addEventListener('click', () => setView('narrative'));
 
     render();
   </script>
