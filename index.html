@@ -187,9 +187,9 @@
 
     <div class="source-strip">
       <span>BLS CPI-U · U.S. city average</span>
-      <span class="dot">Data through August 2026</span>
-      <span class="dot">Rebuilt from BLS data Sep 12, 2026</span>
-      <a class="dot" href="https://www.bls.gov/news.release/archives/cpi_09112026.htm" target="_blank" rel="noopener noreferrer">View BLS release ↗</a>
+      <span class="dot" id="srcDataThrough">Data through August 2026</span>
+      <span class="dot" id="srcReleased">BLS released Sep 11, 2026</span>
+      <a class="dot" id="srcReleaseLink" href="https://www.bls.gov/news.release/archives/cpi_09112026.htm" target="_blank" rel="noopener noreferrer">View BLS release (August 2026) ↗</a>
     </div>
 
     <div class="view-switch" role="group" aria-label="Explorer view">
@@ -231,7 +231,7 @@
     </section>
 
     <footer class="footnotes">
-      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them (series BLS does not seasonally adjust are marked); annual changes are not seasonally adjusted. Every value in this snapshot comes from BLS — a BLS-published percent change or computed directly from BLS-published index levels. Nothing is modeled or estimated. Monthly changes are computed from the latest BLS-published index levels; BLS revises seasonal factors each year, so a past month's change can differ by 0.1 point from the originally published release. October 2025 was not published by BLS (lapse in appropriations); for November 2025 BLS published annual changes but no 1-month changes for most series, so those cells are shown as unavailable. Relative-importance weights are not shown in this snapshot.</p>
+      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them (series BLS does not seasonally adjust are marked); annual changes are not seasonally adjusted. Every value in this snapshot comes from BLS — a BLS-published percent change or computed directly from BLS-published index levels. Nothing is modeled or estimated. Monthly changes are computed from the latest BLS-published index levels; BLS revises seasonal factors each year, so a past month's change can differ by 0.1 point from the originally published release. October 2025 was not published by BLS (lapse in appropriations); for November 2025 BLS published annual changes but no 1-month changes for most series, so those cells are shown as unavailable. Relative-importance weights are not shown in this snapshot. Snapshot rebuilt from BLS data on Sep 12, 2026.</p>
       <p><strong>Two views, one dataset:</strong> “By expenditure group” follows the BLS item taxonomy; “By BLS release narrative” follows the news-release layout (Food → Energy → All items less food &amp; energy). Both views draw on the same BLS-published series — switching views never changes a number.</p>
       <p>Fixed snapshot · data through August 2026.</p>
     </footer>
@@ -256,6 +256,43 @@
 
     // Index of the latest (verified) month. Never hardcode; the window shifts each release.
     const LATEST = periods.length - 1;
+
+    // Official BLS news-release date + archive URL per report month. Verified
+    // against the BLS release schedule and rescheduling notices: Sep 2025 was
+    // rescheduled to Oct 24, 2025; Oct 2025 was not published (lapse in
+    // appropriations). Archive URLs follow BLS's cpi_MMDDYYYY.htm convention.
+    const RELEASES = {
+      '2025-09': { rel: 'Oct 24, 2025', url: 'https://www.bls.gov/news.release/archives/cpi_10242025.htm' },
+      '2025-10': null,
+      '2025-11': { rel: 'Dec 18, 2025', url: 'https://www.bls.gov/news.release/archives/cpi_12182025.htm' },
+      '2025-12': { rel: 'Jan 13, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_01132026.htm' },
+      '2026-01': { rel: 'Feb 13, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_02132026.htm' },
+      '2026-02': { rel: 'Mar 11, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_03112026.htm' },
+      '2026-03': { rel: 'Apr 10, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_04102026.htm' },
+      '2026-04': { rel: 'May 12, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_05122026.htm' },
+      '2026-05': { rel: 'Jun 10, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_06102026.htm' },
+      '2026-06': { rel: 'Jul 14, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_07142026.htm' },
+      '2026-07': { rel: 'Aug 12, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_08122026.htm' },
+      '2026-08': { rel: 'Sep 11, 2026', url: 'https://www.bls.gov/news.release/archives/cpi_09112026.htm' }
+    };
+    const RELEASE_ARCHIVE = 'https://www.bls.gov/bls/news-release/cpi.htm';
+
+    // The source strip follows the selected report month, so historical pages
+    // describe their own month instead of the latest one.
+    function renderSourceStrip() {
+      const p = periods[selectedPeriod], r = RELEASES[p.key], name = monthName(selectedPeriod);
+      document.getElementById('srcDataThrough').textContent = 'Data through ' + name;
+      const link = document.getElementById('srcReleaseLink');
+      if (r) {
+        document.getElementById('srcReleased').textContent = 'BLS released ' + r.rel;
+        link.href = r.url;
+        link.textContent = 'View BLS release (' + name + ') ↗';
+      } else {
+        document.getElementById('srcReleased').textContent = 'No BLS release published';
+        link.href = RELEASE_ARCHIVE;
+        link.textContent = 'BLS release archive (' + name + ') ↗';
+      }
+    }
 
     const categories = {
       all: { name:'All items', parent:null, children:['food','housing','apparel','transportation','medicalCare','recreation','educationCommunication','otherGoodsServices','energy','core','coreGoods','coreServices','householdFurnishingsTop','alcoholicBeverages','tobacco'], mom:[0.3,null,null,0.3,0.2,0.3,0.9,0.6,0.5,-0.4,0.1,0.4], yoy:[3.0,null,2.7,2.7,2.4,2.4,3.3,3.8,4.2,3.5,3.4,3.4] },
@@ -583,7 +620,7 @@
       document.title=`CPI Inflation Explorer — ${monthName(selectedPeriod)}`;
     }
 
-    function render() { renderMonths(); renderHeadline(); renderSummary(); renderNodes(); renderYoy(); renderMom(); }
+    function render() { renderMonths(); renderHeadline(); renderSourceStrip(); renderSummary(); renderNodes(); renderYoy(); renderMom(); }
 
     const VIEW_CAPTIONS = {
       taxonomy: 'BLS item structure: 8 major expenditure groups plus analytical aggregates.',
