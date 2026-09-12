@@ -185,10 +185,10 @@
     </div>
 
     <div class="view-switch" role="group" aria-label="Explorer view">
-      <button class="view-tab is-active" type="button" id="viewTaxonomy" aria-pressed="true">By expenditure group</button>
-      <button class="view-tab" type="button" id="viewNarrative" aria-pressed="false">By BLS release narrative</button>
+      <button class="view-tab" type="button" id="viewTaxonomy" aria-pressed="false">By expenditure group</button>
+      <button class="view-tab is-active" type="button" id="viewNarrative" aria-pressed="true">By BLS release narrative</button>
     </div>
-    <p class="view-caption" id="viewCaption">BLS item structure: 8 major expenditure groups plus analytical aggregates.</p>
+    <p class="view-caption" id="viewCaption">Mirrors the BLS news release — Food, then Energy, then All items less food &amp; energy. Same BLS series, release order.</p>
 
     <section class="month-panel" aria-labelledby="month-label">
       <p class="section-label" id="month-label">REPORT MONTH</p>
@@ -223,7 +223,7 @@
     </section>
 
     <footer class="footnotes">
-      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them (series BLS does not seasonally adjust are marked); annual changes are not seasonally adjusted. Every value in this snapshot comes from BLS — a BLS-published percent change or computed directly from BLS-published index levels. Nothing is modeled or estimated. October 2025 was not published by BLS (lapse in appropriations); for November 2025 BLS published annual changes but no 1-month changes for most series, so those cells are shown as unavailable. Relative-importance weights are not shown in this snapshot.</p>
+      <p><strong>Reading the measures:</strong> monthly changes use seasonally adjusted series where BLS publishes them (series BLS does not seasonally adjust are marked); annual changes are not seasonally adjusted. Every value in this snapshot comes from BLS — a BLS-published percent change or computed directly from BLS-published index levels. Nothing is modeled or estimated. Monthly changes are computed from the latest BLS-published index levels; BLS revises seasonal factors each year, so a past month's change can differ by 0.1 point from the originally published release. October 2025 was not published by BLS (lapse in appropriations); for November 2025 BLS published annual changes but no 1-month changes for most series, so those cells are shown as unavailable. Relative-importance weights are not shown in this snapshot.</p>
       <p><strong>Two views, one dataset:</strong> “By expenditure group” follows the BLS item taxonomy; “By BLS release narrative” follows the news-release layout (Food → Energy → All items less food &amp; energy). Both views draw on the same BLS-published series — switching views never changes a number.</p>
       <p>Fixed snapshot · data through August 2026.</p>
     </footer>
@@ -406,13 +406,13 @@
       nPersonalCareN: { name:'Personal care', parent:'nOtherGSN', children:[], ref:'personalCare' },
     };
 
-    let view = 'taxonomy';
+    let view = 'narrative';
     const rootId = () => view === 'narrative' ? 'nAll' : 'all';
     const tree = () => view === 'narrative' ? narrative : categories;
     const dispOf = id => tree()[id];
     const dataOf = id => { const n = dispOf(id); return n.ref ? categories[n.ref] : n; };
 
-    let selectedCategory = 'all';
+    let selectedCategory = 'nAll';
     let selectedPeriod = LATEST;
 
     const fmt = value => value == null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
